@@ -32,7 +32,8 @@ class IngestAPIView(APIView):
                     "filename": file.name,
                     "document_id": result["document_id"],
                     "status": result["status"],
-                    "text_length": result["text_length"]
+                    "text_length": result["text_length"],
+                    "chunk_count": result["chunk_count"]
                 })
 
 

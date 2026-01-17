@@ -10,7 +10,7 @@ class QdrantVectorStore:
         self,
         collection_name: str,
         vector_size: int,
-        host: str = "localhost",
+        host: str = "qdrant",
         port: int = 6333,
     ):
         self.collection_name = collection_name
