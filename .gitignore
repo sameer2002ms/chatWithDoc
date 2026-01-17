@@ -22,3 +22,10 @@ postgres_data/
 # IDE
 .vscode/
 .idea/
+
+
+
+# Vector DB data
+qdrant_data/aliases
+qdrant_data/collections
+qdrant_data
