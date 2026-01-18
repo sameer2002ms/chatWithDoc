@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from rag_orchestrator.chunkpdf import FixedSizeChunker
-from rag_orchestrator.embedder import Embedder
+from server.rag_orchestrator.embedding.embedder import Embedder
 from rag_orchestrator.chunks import Chunk
 
 

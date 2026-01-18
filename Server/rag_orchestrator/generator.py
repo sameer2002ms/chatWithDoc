@@ -1,13 +1,12 @@
-from typing import List
+from typing import List, Dict
 import os
 from openai import OpenAI
 
-from prompts.qa_system_prompt import SYSTEM_PROMPT
 
-
-class AnswerGenerator:
+class GPTAnswerGenerator:
     """
-    Generates grounded answers using retrieved context and an LLM.
+    GPT-based answer generator for RAG.
+    Uses retrieved chunks as grounded context.
     """
 
     def __init__(self):
@@ -18,36 +17,46 @@ class AnswerGenerator:
         self.client = OpenAI(api_key=api_key)
         self.model = os.getenv("OPENAI_CHAT_MODEL", "gpt-4.1-mini")
 
-    def build_prompt(self, context_chunks: List[str], question: str) -> str:
-        context = "\n\n".join(context_chunks)
+    def generate(self, question: str, chunks: List[Dict]) -> Dict:
+        # Build context text
+        context = "\n\n".join(f"- {c['text']}" for c in chunks)
 
-        return f"""
-CONTEXT:
-{context}
+        system_prompt = (
+            "You are a professional document-based assistant. "
+            "Answer the question strictly using the provided document context. "
+            "Do not add any external knowledge. "
+            "If the answer is not present, say: "
+            "'The document does not contain this information.' "
+            "Answer concisely in 1–2 sentences."
+        )
 
-QUESTION:
+        user_prompt = f"""
+Question:
 {question}
 
-ANSWER:
+Document Context:
+{context}
 """
-
-    def generate_answer(self, context_chunks: List[str], question: str) -> str:
-        # 🔒 Guardrail 1: no context → safe failure
-        if not context_chunks:
-            return "I don't know based on the provided documents."
-
-        user_prompt = self.build_prompt(context_chunks, question)
 
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            temperature=0.2,        # 🔒 Low hallucination
-            max_tokens=300,         # 🔒 Cost control
+            temperature=0.2,  # low hallucination
         )
 
-        return response.choices[0].message.content.strip()
+        answer_text = response.choices[0].message.content.strip()
 
-
+        return {
+            "answer": answer_text,
+            "sources": [
+                {
+                    "chunk_index": c["chunk_index"],
+                    "text": c["text"],
+                    "score": c.get("score"),
+                }
+                for c in chunks
+            ],
+        }

@@ -1,6 +1,6 @@
 from typing import List
 
-from rag_orchestrator.embedder import Embedder
+from server.rag_orchestrator.embedding.embedder import Embedder
 from rag_orchestrator.vector_store import QdrantVectorStore
 
 

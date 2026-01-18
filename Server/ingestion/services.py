@@ -3,10 +3,8 @@ from ingestion.models import Document
 import uuid
 import pdfplumber
 from rag_orchestrator.chunkpdf import FixedSizeChunker
-from rag_orchestrator.chunkpdf import FixedSizeChunker
-from rag_orchestrator.embedder import OpenAIEmbedder
+from rag_orchestrator.embedding.embedder import OpenAIEmbedder
 from rag_orchestrator.vector_store import QdrantVectorStore
-
 
 
 def generate_checksum(text: str) -> str:
@@ -19,12 +17,11 @@ def ingest_text(source_name: str, text: str) -> Document:
     document = Document.objects.create(
         source_type="text",
         source_name=source_name,
-        raw_text=text,
-        checksum=checksum,
         ingestion_status="INGESTED",
     )
 
     return document
+
 
 def ingest_pdf_in_memory(file_obj):
     document_id = str(uuid.uuid4())
@@ -45,28 +42,26 @@ def ingest_pdf_in_memory(file_obj):
     if not full_text:
         raise RuntimeError("No extractable text found in PDF")
 
+    # ✅ THIS WAS MISSING
+    document = Document.objects.create(
+        source_type="pdf",
+        source_name=file_obj.name,
+        ingestion_status="INGESTED",
+    )
+    
+    document_id = str(document.id)  # ✅ THIS is your document_id
+
     # 2️⃣ Chunk text
-    chunker = FixedSizeChunker(
-        chunk_size=500,
-        overlap=50,
-        model_name="gpt-4.1-mini",
-    )
+    chunker = FixedSizeChunker(chunk_size=500, overlap=50, model_name="gpt-4.1-mini")
+    chunks = chunker.chunk_text(document_id=document_id, text=full_text)
 
-    chunks = chunker.chunk_text(
-        document_id=document_id,
-        text=full_text,
-    )
-
-    # 3️⃣ Embed chunks using OpenAI (REAL)
+    # 3️⃣ Embed
     embedder = OpenAIEmbedder()
+    embeddings = embedder.embed_texts([c.text for c in chunks])
 
-    texts = [chunk.text for chunk in chunks]
-    embeddings = embedder.embed_texts(texts)
+    assert len(embeddings[0]) == 1536
 
-    # 🔒 HARD GUARD — keep this forever
-    assert len(embeddings[0]) == 1536, "❌ OpenAI embeddings NOT being used"
-
-    # 4️⃣ Store in Qdrant
+    # 4️⃣ Store vectors
     store = QdrantVectorStore(
         collection_name="documents",
         vector_size=len(embeddings[0]),
