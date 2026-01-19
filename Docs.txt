@@ -1,0 +1,10 @@
+ingestion schema (version 1)
+
+Document
+├── document_id        (UUID)
+├── source_type        (pdf | docx | text | url | manual)
+├── source_name        (filename / url / user label)
+├── raw_text           (original extracted text)
+├── created_at
+├── ingestion_status   (PENDING | INGESTED | FAILED)
+├── checksum           (for deduplication)
