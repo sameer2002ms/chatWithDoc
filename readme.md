@@ -227,8 +227,8 @@ Ask    10,000 questions     ~$0.80
 ---
 
 ## 👨‍💻 Author
-**Mohd Sameer Backend developer at IBM
-**
+**Mohd Sameer Backend developer at IBM**
+
 Built as a **resume-grade GenAI system** with a focus on clean backend architecture, explainability, cost efficiency, and interview readiness.
 
 
