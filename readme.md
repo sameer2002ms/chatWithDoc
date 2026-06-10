@@ -1,8 +1,6 @@
 # 📄 RAG-based Document Question Answering System
 
-A **production-style Retrieval Augmented Generation (RAG)** backend that allows users to upload a PDF document and ask natural language questions grounded strictly in the document content.
-
-This project is designed with **clean architecture, cost efficiency, and interview readiness** in mind.
+### Version 1 of the project focused on building a minimal production-style RAG pipeline using Django, OpenAI embeddings, and Qdrant.
 
 ---
 
@@ -216,13 +214,26 @@ Ask    10,000 questions     ~$0.80
 
 ---
 
-## 📌 Future Enhancements
+## Advanced Version (V2)
 
-* Multi-document retrieval
-* Conversation memory
-* Streaming responses (voice agents)
-* React-based frontend chat UI
-* User-level rate limiting and quotas
+This repository is the upgraded evolution of the original RAG backend project:
+
+➡️ https://github.com/sameer2002ms/chatWithDoc-using-Langchain
+
+Enhancements introduced in V2:
+
+* LangChain Runnable-based architecture
+* Multi-format ingestion support
+
+  * PDF
+  * DOCX
+  * HTML
+  * Public URLs
+* Metadata-scoped retrieval in Qdrant
+* Improved modular backend structure
+* Better scalability and maintainability
+* Enhanced grounded answer generation pipeline
+* More production-oriented RAG workflow
 
 ---
 
